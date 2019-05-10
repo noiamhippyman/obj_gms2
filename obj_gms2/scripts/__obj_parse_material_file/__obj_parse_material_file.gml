@@ -5,13 +5,14 @@ var materials = argument1;
 
 #region File validation
 
-if (!file_exists(filename)) {
-	show_error("File not found - " + filename, true);
-}
+file_validate(filename,".mtl");
+//if (!file_exists(filename)) {
+//	show_error("File not found - " + filename, true);
+//}
 
-if (filename_ext(filename) != ".mtl") {
-	show_error("Filetype not .mtl - " + filename, true);
-}
+//if (filename_ext(filename) != ".mtl") {
+//	show_error("Filetype not .mtl - " + filename, true);
+//}
 
 #endregion
 

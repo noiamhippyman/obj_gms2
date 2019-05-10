@@ -1,8 +1,8 @@
 {
-    "id": "0512cdf7-004a-48ad-9b5b-b423cd76d430",
+    "id": "9e76c692-543c-4f37-87eb-71629c25a0b9",
     "modelName": "GMScript",
     "mvc": "1.0",
-    "name": "model_format",
+    "name": "__obj_generate_vertex_buffers",
     "IsCompatibility": false,
     "IsDnD": false
 }

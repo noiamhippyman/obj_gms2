@@ -1,8 +1,8 @@
 {
-    "id": "0a9ab2bd-1b7c-4e80-a99b-ed10e845c110",
+    "id": "0512cdf7-004a-48ad-9b5b-b423cd76d430",
     "modelName": "GMScript",
     "mvc": "1.0",
-    "name": "old_model_load",
+    "name": "__obj_model_format",
     "IsCompatibility": false,
     "IsDnD": false
 }
