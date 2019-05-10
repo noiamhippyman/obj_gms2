@@ -1,0 +1,1 @@
+model = model_load("Models/barrel.obj");

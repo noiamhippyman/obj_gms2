@@ -1,5 +1,5 @@
 {
-    "id": "a8f970f5-966b-4690-9011-60ad7e27ad8f",
+    "id": "7fe7e1ce-691b-47fc-8b61-2e539f048968",
     "modelName": "GMIncludedFile",
     "mvc": "1.0",
     "name": "spacecraft1.mtl",

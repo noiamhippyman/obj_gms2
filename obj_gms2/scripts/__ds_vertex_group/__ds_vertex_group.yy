@@ -1,8 +1,8 @@
 {
-    "id": "1e153cc8-8ed8-4053-9002-3dff62e08444",
+    "id": "6cd7901b-57fb-4fe9-abf0-9c9bd688414d",
     "modelName": "GMScript",
     "mvc": "1.0",
-    "name": "model_load",
+    "name": "__ds_vertex_group",
     "IsCompatibility": false,
     "IsDnD": false
 }

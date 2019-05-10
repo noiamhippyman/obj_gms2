@@ -2,207 +2,111 @@
 /// @args filename
 var filename = argument0;
 
-#region Validate file
+#region Initialize data structures
+
+var materials = ds_map_create();
+var vertexPositions = ds_list_create();
+var vertexUVs = ds_list_create();
+var vertexNormals = ds_list_create();
+var vertexGroups = ds_list_create();
+
+#endregion
+
+#region File Validation
 
 if (!file_exists(filename)) {
-	show_error("No file found",true);
+	show_error("File not found - " + filename, true);
 }
 
 if (filename_ext(filename) != ".obj") {
-	show_error("Not an .obj file",true);
+	show_error("Filetype not .obj - " + filename, true);
 }
 
 #endregion
 
-#region Parse .obj file into obj data structure
+#region Parse file
 
 var file = file_text_open_read(filename);
 
-var currentObjMap = noone;
-var vPositions = ds_list_create();
-var vUVs = ds_list_create();
-var vNormals = ds_list_create();
-var meshes = ds_list_create();
+var currVertexGroup = noone;
+var currObjectName = "";
 
 while (!file_text_eof(file)) {
-	var line = file_text_readln(file);
-	var type = string_char_at(line,1);
+
+	var line = string_replace(file_text_readln(file),"\n","");
+	var element = string_extract(line," ",0);
 	
-	switch (type) {
-		case "g": // group
-		case "o": #region object
-			var name = string_replace(line,type+" ","");
-			name = string_replace(name,"\n","");
-			var objMap = ds_map_create();
-			objMap[?"name"] = name;
+	switch (element) {
+		case "#": //  a comment! How nice? :D
+		break;
+		
+		case "mtllib": // a file with one or more material definitions that will be added to materials ds_map
+			var matfilename = filename_path(filename) + string_extract(line," ",1);
+			__obj_parse_material_file(matfilename,materials);
+		break;
+		
+		case "usemtl": // a material is being assigned to a new vertex group
+			var materialName = string_extract(line," ",1);
+			currVertexGroup = __obj_setup_new_vertex_group(vertexGroups,currObjectName,materialName);
+		break;
+		
+		case "f": // faces are being added to the current vertex group being processed
+			__obj_parse_face(line,currVertexGroup);
+		break;
+		
+		case "s": // smoothing settings applied to the current vertex group being processed
 			
-			ds_list_add(meshes,objMap);
-			ds_list_mark_as_map(meshes, ds_list_size(meshes)-1);
-			currentObjMap = objMap;
-		#endregion
-		break;
-		
-		case "v": #region vertex data
-		
-			switch (string_char_at(line,2)) {
-				case "t": #region vertex texcoords
-					type = "vt";
-					
-					var vstring =string_replace(line,type+" ","");
-					//var v = [
-					//	real(string_extract(vstring," ",0)),
-					//	real(string_extract(vstring," ",1))
-					//];
-					
-					var v = ds_list_create();
-					ds_list_add(v,
-						real(string_extract(vstring," ",0)),
-						real(string_extract(vstring," ",1))
-					);
-					
-					ds_list_add(vUVs,v);
-					ds_list_mark_as_list(vUVs, ds_list_size(vUVs)-1);
-				#endregion
-				break;
-				
-				case "n": #region vertex normal
-					type = "vn";
-					
-					var vstring = string_replace(line,type+" ","");
-					//var v = [
-					//	real(string_extract(vstring," ",0)),
-					//	real(string_extract(vstring," ",1)),
-					//	real(string_extract(vstring," ",2))
-					//];
-					
-					var v = ds_list_create();
-					ds_list_add(v,
-						real(string_extract(vstring," ",0)),
-						real(string_extract(vstring," ",1)),
-						real(string_extract(vstring," ",2))
-					);
-					
-					ds_list_add(vNormals,v);
-					ds_list_mark_as_list(vNormals, ds_list_size(vNormals)-1);
-				#endregion
-				break;
-				
-				default: #region vertex position
-					
-					var vstring =string_replace(line,type+" ","");
-					//var v = [
-					//	real(string_extract(vstring," ",0)),
-					//	real(string_extract(vstring," ",1)),
-					//	real(string_extract(vstring," ",2))
-					//];
-					
-					var v = ds_list_create();
-					ds_list_add(v,
-						real(string_extract(vstring," ",0)),
-						real(string_extract(vstring," ",1)),
-						real(string_extract(vstring," ",2))
-					);
-					
-					ds_list_add(vPositions,v);
-					ds_list_mark_as_list(vPositions, ds_list_size(vPositions)-1);
-				#endregion
-				break;
-			}
-		#endregion
-		break;
-		
-		case "s": #region smoothing
-			var smoothing = string_replace(line,type+" ","") == "off" ? false : true;
-			currentObjMap[?"smoothing"] = smoothing;
-		#endregion
-		break;
-		
-		case "f": #region faces
-			var faces = ds_map_find_value(currentObjMap,"faces");
-			if (is_undefined(faces)) {
-				faces = ds_list_create();
-				ds_map_add_list(currentObjMap,"faces",faces);
-			}
+			var smoothing = string_extract(line," ",1) == "off" ? false : true;
+			currVertexGroup[?"smoothing"] = smoothing;
 			
-			var face = ds_list_create();
-			var fstring = string_replace(line,type+" ","");
-			fstring = string_replace(fstring,"\n","");
-			for (var i = 0; i < 3; ++i) {
-				var v = string_extract(fstring," ",i);
-				for (var j = 0; j < 3; ++j) ds_list_add(face,string_extract(v,"/",j)); //face[| ds_list_size(face)-1 ] = string_extract(v,"/",j);
-			}
-			
-			ds_list_add(faces,face);
-			ds_list_mark_as_list(faces,ds_list_size(faces)-1);
-		#endregion
 		break;
 		
-		default: // unsupported
-			// do nothing
+		case "o": // object
+		case "g": // group (afaik they're the same thing. haven't tested enough.)
+			
+			currObjectName = string_extract(line," ",1);
+			
+		break;
+		
+		case "v": // vertex positions
+			__obj_parse_vertex_position(line,vertexPositions);
+		break;
+		
+		case "vt": // vertex texture coordinates (UV)
+			__obj_parse_vertex_uv(line,vertexUVs);
+		break;
+		
+		case "vn": // vertex normals
+			__obj_parse_vertex_normal(line,vertexNormals);
+		break;
+		
+		default:
+			show_error("Unknown element: " + element,true);
 		break;
 	}
+
 }
 
 file_text_close(file);
 
-// No need to do anything. For some reason this jerk gave me an .obj file with no meshes.
-if (ds_list_empty(meshes)) {
-	ds_list_destroy(vPositions);
-	ds_list_destroy(vUVs);
-	ds_list_destroy(vNormals);
-	ds_list_destroy(meshes);
-	return noone;
-}
-
 #endregion
 
-#region Setup vertex buffers
-
+#region Create vertex buffers from parsed data
 var vertexBuffers = ds_list_create();
-var meshCount = ds_list_size(meshes);
-for (var i = 0; i < meshCount; ++i) {
-	var mesh = meshes[|i];
-	var faces = mesh[?"faces"];
-	var facecount = ds_list_size(faces);
-	
-	var vbuff = vertex_create_buffer();
-	vertex_begin(vbuff,model_format());
-	for (var j = 0; j < facecount; ++j) {
-		var face = faces[|j];
-		for (var k = 0; k < 3; ++k) {
-			var kk = (k*3);
-			var vpi = real(face[| kk]);
-			var vti = real(face[| kk+1]);
-			var vni = real(face[| kk+2]);
-			var vpos = vPositions[|vpi-1];
-			var vtex = vUVs[|vti-1];
-			var vnor = vNormals[|vni-1];
-			vertex_position_3d(vbuff,vpos[|0],vpos[|1],vpos[|2]);
-			vertex_texcoord(vbuff,vtex[|0],vtex[|1]);
-			vertex_normal(vbuff,vnor[|0],vnor[|1],vnor[|2]);
-		}
-	}
-	vertex_end(vbuff);
-	
-	ds_list_add(vertexBuffers,vbuff);
-}
+
+
 
 #endregion
 
-#region Cleanup and return
+#region Cleanup data structures
 
-ds_list_destroy(vPositions);
-ds_list_destroy(vUVs);
-ds_list_destroy(vNormals);
-
-var ret = vertexBuffers;
-if (meshCount == 1) {
-	ret = vertexBuffers[|0];
-	ds_list_destroy(vertexBuffers);
-}
-
-ds_list_destroy(meshes);
-
-return ret;
+//ds_map_destroy(materials);
+//ds_list_destroy(vertexPositions);
+//ds_list_destroy(vertexUVs);
+//ds_list_destroy(vertexNormals);
+//ds_list_destroy(vertexGroups);
+ds_list_add(vertexBuffers,materials,vertexPositions,vertexUVs,vertexNormals,vertexGroups); // just for testing and debugging
 
 #endregion
+
+return vertexBuffers;

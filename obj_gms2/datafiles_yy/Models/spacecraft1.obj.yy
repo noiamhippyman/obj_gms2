@@ -8,7 +8,7 @@
     "exportAction": 0,
     "exportDir": "",
     "fileName": "spacecraft1.obj",
-    "filePath": "datafiles",
+    "filePath": "datafiles\\Models",
     "freeData": false,
     "origName": "",
     "overwrite": false,
