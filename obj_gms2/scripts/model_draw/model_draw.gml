@@ -24,17 +24,7 @@ if (argument_count == 2) {
 shader_set(shader_model);
 matrix_set(matrix_world, matrix);
 
-if (ds_exists(model,ds_type_map)) {
-	
-	var key = ds_map_find_first(model);
-	var count = ds_map_size(model);
-	for (var i = 1; i < count; ++i) {
-		var mesh = model[?key];
-		vertex_submit(mesh,pr_trianglelist,texture);
-		key = ds_map_find_next(model,key);
-	}
-	
-} else if (ds_exists(model,ds_type_list)) {
+if (ds_exists(model,ds_type_list)) {
 	
 	var count = ds_list_size(model);
 	for (var i = 0; i < count; ++i) {

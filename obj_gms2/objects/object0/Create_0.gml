@@ -1,1 +1,1 @@
-model = model_load("spacecraft1.obj");
+model = model_load("multi-cube.obj");

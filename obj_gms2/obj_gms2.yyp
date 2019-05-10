@@ -127,6 +127,14 @@
             }
         },
         {
+            "Key": "77d906de-a13a-41d1-8db4-2ea04e154be3",
+            "Value": {
+                "id": "609d701d-92ef-4fd4-9cbc-bf90cbc4db46",
+                "resourcePath": "datafiles_yy\\multi-cube.obj.yy",
+                "resourceType": "GMIncludedFile"
+            }
+        },
+        {
             "Key": "7f3eebf4-2454-46e6-9c2a-2d0a01eeb99d",
             "Value": {
                 "id": "97f8707f-e8c5-4f08-8cb6-528600375cc3",
