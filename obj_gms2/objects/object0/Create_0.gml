@@ -1,1 +1,1 @@
-model = noone;
+model = model_load("spacecraft1.obj");
