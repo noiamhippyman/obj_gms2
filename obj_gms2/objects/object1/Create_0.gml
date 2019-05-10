@@ -1,1 +1,1 @@
-model = model_load("Models/barrel.obj");
+model = model_load("Models/cube.obj");
